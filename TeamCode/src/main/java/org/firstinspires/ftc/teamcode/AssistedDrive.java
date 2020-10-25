@@ -29,17 +29,17 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.hardware.motors.TetrixMotor;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-@TeleOp(name = "Assisted Drive", group = "Driver")
+@TeleOp(name = "JimBA2 Assisted Drive", group = "Driver")
 public class AssistedDrive extends OpMode {
 
 	private ElapsedTime runtime = new ElapsedTime();
@@ -47,15 +47,17 @@ public class AssistedDrive extends OpMode {
 	private DcMotor frontDrive, backDrive, leftDrive, rightDrive;
 
 	private DcMotor leftArmBase, rightArmBase;
-	private Servo leftArmPivot, rightArmPivot;
-	private Servo leftHandGrip, rightHandGrip;
+	private DcMotor leftArmPivot, rightArmPivot;
+	private CRServo leftHandGrip, rightHandGrip;
+
+	private float position = 0;
 
 
 	@Override
 	public void init() {
 
 		telemetry.addData("Status", "Mapping Hardware...");
-
+		gamepad1.setJoystickDeadzone(.2f);
 		try {
 			frontDrive = hardwareMap.get(DcMotor.class, "FrontMotor");
 			backDrive = hardwareMap.get(DcMotor.class, "BackMotor");
@@ -65,10 +67,11 @@ public class AssistedDrive extends OpMode {
 			leftArmBase = hardwareMap.get(DcMotor.class, "LeftArmBase");
 			rightArmBase = hardwareMap.get(DcMotor.class, "RightArmBase");
 
-			leftArmPivot = hardwareMap.get(Servo.class, "LeftArmPivot");
-			rightArmPivot = hardwareMap.get(Servo.class, "RightArmPivot");
-			leftHandGrip = hardwareMap.get(Servo.class, "LeftHandGrip");
-			rightHandGrip = hardwareMap.get(Servo.class, "RgihtHandGrip");
+			leftArmPivot = hardwareMap.get(DcMotor.class, "LeftArmPivot");
+			rightArmPivot = hardwareMap.get(DcMotor.class, "RightArmPivot");
+			leftHandGrip = hardwareMap.get(CRServo.class, "LeftHandGrip");
+			rightHandGrip = hardwareMap.get(CRServo.class, "RightHandGrip");
+
 		} catch(Exception e) {
 			telemetry.addData("Status", "Mapping Failure.");
 			throw e;
@@ -77,18 +80,29 @@ public class AssistedDrive extends OpMode {
 
 		// Most robots need the motor on one side to be reversed to drive forward
 		// Reverse the motor that runs backwards when connected directly to the battery
-		leftDrive.setDirection(DcMotor.Direction.FORWARD);
-		rightDrive.setDirection(DcMotor.Direction.REVERSE);
+		frontDrive.setDirection(DcMotor.Direction.FORWARD);
+		backDrive.setDirection(DcMotor.Direction.REVERSE);
+		leftDrive.setDirection(DcMotor.Direction.REVERSE);
+		rightDrive.setDirection(DcMotor.Direction.FORWARD);
 
+		//leftArmBase.setDirection(DcMotor.Direction.REVERSE);
+		//rightArmBase.setDirection(DcMotor.Direction.REVERSE);
+
+		leftArmPivot.setDirection(DcMotor.Direction.REVERSE);
+		rightArmPivot.setDirection(DcMotor.Direction.FORWARD);
 		// Tell the driver that initialization is complete.
 		telemetry.addData("Status", "Initialized");
+
 	}
 
+	float px = 0;
+	float py = 0;
 	/*
 	 * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
 	 */
 	@Override
 	public void init_loop() {
+
 	}
 
 	/*
@@ -104,32 +118,59 @@ public class AssistedDrive extends OpMode {
 	 */
 	@Override
 	public void loop() {
-		// Setup a variable for each drive wheel to save power level for telemetry
-		double leftPower;
-		double rightPower;
+		leftArmPivot.setPower(0);
+		rightArmPivot.setPower(0);
 
-		// Choose to drive using either Tank Mode, or POV Mode
-		// Comment out the method that's not used.  The default below is POV.
+		if(gamepad1.right_stick_x > .2) {
+				frontDrive.setPower(-Math.abs(gamepad1.right_stick_x * 1.2));
+				backDrive.setPower(Math.abs(gamepad1.right_stick_x * 1.2));
 
-		// POV Mode uses left stick to go forward, and right stick to turn.
-		// - This uses basic math to combine motions and is easier to drive straight.
-		double drive = -gamepad1.left_stick_y;
-		double turn  =  gamepad1.right_stick_x;
-		leftPower    = Range.clip(drive + turn, -1.0, 1.0) ;
-		rightPower   = Range.clip(drive - turn, -1.0, 1.0) ;
+				leftDrive.setPower(Math.abs(gamepad1.right_stick_x * 1.2));
+				rightDrive.setPower(-Math.abs(gamepad1.right_stick_x * 1.2));
+			} else if(gamepad1.right_stick_x < -.2){
+				frontDrive.setPower(Math.abs(gamepad1.right_stick_x * 1.2));
+				backDrive.setPower(-Math.abs(gamepad1.right_stick_x * 1.2));
 
-		// Tank Mode uses one stick to control each wheel.
-		// - This requires no math, but it is hard to drive forward slowly and keep straight.
-		// leftPower  = -gamepad1.left_stick_y ;
-		// rightPower = -gamepad1.right_stick_y ;
+				leftDrive.setPower(-Math.abs(gamepad1.right_stick_x * 1.2));
+				rightDrive.setPower(Math.abs(gamepad1.right_stick_x * 1.2));
+			} else {
+				frontDrive.setPower(gamepad1.left_stick_x * 1.2);
+				backDrive.setPower(gamepad1.left_stick_x * 1.2);
 
-		// Send calculated power to wheels
-		leftDrive.setPower(leftPower);
-		rightDrive.setPower(rightPower);
+				leftDrive.setPower(gamepad1.left_stick_y * 1.2);
+				rightDrive.setPower(gamepad1.left_stick_y * 1.2);
+			}
 
-		// Show the elapsed game time and wheel power.
-		telemetry.addData("Status", "Run Time: " + runtime.toString());
-		telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftPower, rightPower);
+			/*if(gamepad1.left_trigger > .2){
+				position += .01;
+				if(position > 1) position = 1;
+			}
+			if(gamepad1.right_trigger > .2){
+				position -= .01;
+				if(position < 0) position = 0;
+			}*/
+			//telemetry.addData("right", rightHandGrip.getPosition());
+			//telemetry.addData("left", leftHandGrip.getPosition());
+
+			if(gamepad1.right_trigger > .2) {
+				leftHandGrip.setDirection(DcMotorSimple.Direction.FORWARD);
+				rightHandGrip.setDirection(DcMotorSimple.Direction.REVERSE);
+				leftHandGrip.setPower(.3);
+				rightHandGrip.setPower(.3);
+			} else if(gamepad1.left_trigger > .2) {
+				leftHandGrip.setDirection(DcMotorSimple.Direction.REVERSE);
+				rightHandGrip.setDirection(DcMotorSimple.Direction.FORWARD);
+				leftHandGrip.setPower(.3);
+				rightHandGrip.setPower(.3);
+			} else {
+				leftHandGrip.setPower(0);
+				rightHandGrip.setPower(0);
+			}
+
+			rightArmBase.setPower(Math.abs(gamepad1.right_stick_y) > 0.3?gamepad1.right_stick_y*-.4:0);
+			leftArmBase.setPower(Math.abs(gamepad1.right_stick_y) > 0.3?gamepad1.right_stick_y*.4:0);
+
+			telemetry.update();
 	}
 
 	/*

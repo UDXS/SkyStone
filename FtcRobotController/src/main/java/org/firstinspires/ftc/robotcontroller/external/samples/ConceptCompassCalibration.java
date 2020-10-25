@@ -77,7 +77,7 @@ public class ConceptCompassCalibration extends LinearOpMode {
         compass = hardwareMap.get(CompassSensor.class, "compass");
 
         // Send telemetry message to signify robot waiting;
-        telemetry.addData("Status", "Ready to cal");    //
+        telemetry.addData("Status", "Reay to cal");    //
         telemetry.update();
 
         // Wait for the game to start (driver presses PLAY)

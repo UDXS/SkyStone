@@ -30,14 +30,10 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 
 /**
@@ -53,8 +49,8 @@ import com.qualcomm.robotcore.util.Range;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Auto Move Right for JimBA2", group="Autonomous")
-public class AutoMoveR extends LinearOpMode {
+@Autonomous(name="Auto Move Left for JimBA2", group="Autonomous")
+public class AutoMoveL extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -124,8 +120,8 @@ public class AutoMoveR extends LinearOpMode {
         rightDrive.setPower(0);
 
         runtime.reset();
-        frontDrive.setPower(1);
-        backDrive.setPower(1);
+        frontDrive.setPower(-1);
+        backDrive.setPower(-1);
         while(runtime.milliseconds() < 2000);
         leftDrive.setPower(0);
         rightDrive.setPower(0);

@@ -27,17 +27,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.robotcontroller.external.samples;
+package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import java.util.List;
+
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
-import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+
+import java.util.List;
 
 /**
  * This 2019-2020 OpMode illustrates the basics of using the TensorFlow Object Detection API to
@@ -49,9 +52,9 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
  * IMPORTANT: In order to use this OpMode, you need to obtain your own Vuforia license key as
  * is explained below.
  */
-@TeleOp(name = "Concept: TensorFlow Object Detection Webcam", group = "Concept")
+@Autonomous(name = "Tesla Autopilot JimBA2", group = "Concept")
 @Disabled
-public class ConceptTensorFlowObjectDetectionWebcam extends LinearOpMode {
+public class TeslaAP extends LinearOpMode {
     private static final String TFOD_MODEL_ASSET = "Skystone.tflite";
     private static final String LABEL_FIRST_ELEMENT = "Stone";
     private static final String LABEL_SECOND_ELEMENT = "Skystone";
@@ -69,7 +72,8 @@ public class ConceptTensorFlowObjectDetectionWebcam extends LinearOpMode {
      * and paste it in to your code on the next line, between the double quotes.
      */
     private static final String VUFORIA_KEY =
-            " -- YOUR NEW VUFORIA KEY GOES HERE  --- ";
+            "AXmvAvb/////AAABmc9Rxmt47Eg5lASR/izC930GVcCgfRIBML7DeyJNkaMxZT46+530w3FZI5RAIpjSmjXO6KgVyDgN8bG3gGdxmZQjuFkaXH0FKepCBSKfe0D9ZTpiDuq6uk4QZdcZVyewJTPoNAll6P5fB28oal48QlrChCxXOxMKM2qd8aG98oEtS5FtrVWpqCse7QqFlmmJTUSq1vfPrP2EyI71/36dxv+TJLvicI5vTCKU0mSy7n2KQVy3fAKDqxS3x9T08re+dT9lIj+q1R9ewb08V4qKoyFlKqQczS6aew22g6/sdavETKAPtNCOGB8Bo52ZQS8euFsKVYG2cqYNeb1k77B3G0R3+dSNYA0YoWpspKpRHVU/";
+
 
     /**
      * {@link #vuforia} is the variable we will use to store our instance of the Vuforia
@@ -81,6 +85,7 @@ public class ConceptTensorFlowObjectDetectionWebcam extends LinearOpMode {
      * {@link #tfod} is the variable we will use to store our instance of the TensorFlow Object
      * Detection engine.
      */
+
     private TFObjectDetector tfod;
 
     @Override
@@ -118,13 +123,24 @@ public class ConceptTensorFlowObjectDetectionWebcam extends LinearOpMode {
                       telemetry.addData("# Object Detected", updatedRecognitions.size());
                       // step through the list of recognitions and display boundary info.
                       int i = 0;
+                      Recognition target = null;
                       for (Recognition recognition : updatedRecognitions) {
                         telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
                         telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
                                 recognition.getLeft(), recognition.getTop());
                         telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
                                 recognition.getRight(), recognition.getBottom());
+                        if(recognition.getLabel() == "Skystone") {
+                            target = recognition;
+                            telemetry.addData("Target", "Acquired at ", "%.03f , %.03f",
+                                    recognition.getLeft(), recognition.getTop());
+                            doTarget(recognition);
+                            break;
+                        }
                       }
+                        if(target == null){
+                            telemetry.addData("Target", "None");
+                        }
                       telemetry.update();
                     }
                 }
@@ -164,5 +180,9 @@ public class ConceptTensorFlowObjectDetectionWebcam extends LinearOpMode {
        tfodParameters.minimumConfidence = 0.8;
        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
+    }
+
+    private void doTarget(Recognition target){
+
     }
 }

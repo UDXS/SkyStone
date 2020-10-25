@@ -49,8 +49,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Auto Move Left for JimBA2", group="Autonomous")
-public class AutoMoveL extends LinearOpMode {
+@Autonomous(name="Auto NO Move Left for JimBA2", group="Autonomous")
+public class AutoMoveL_NM extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -105,26 +105,21 @@ public class AutoMoveL extends LinearOpMode {
         runtime.reset();
 
         // run until the end of the match (driver presses STOP)
-
-        leftDrive.setPower(-1);
-        rightDrive.setPower(-1);
-        while(runtime.milliseconds() < 2300);
-        leftDrive.setPower(0);
-        rightDrive.setPower(0);
+	    leftDrive.setPower(-1);
+	    rightDrive.setPower(-1);
+	    while(runtime.milliseconds() < 300);
+	    leftDrive.setPower(0);
+	    rightDrive.setPower(0);
 
         runtime.reset();
-        leftDrive.setPower(1);
-        rightDrive.setPower(1);
-        while(runtime.milliseconds() < 1500);
-        leftDrive.setPower(0);
-        rightDrive.setPower(0);
+        while(runtime.milliseconds() < 300);
 
         runtime.reset();
         frontDrive.setPower(-1);
         backDrive.setPower(-1);
         while(runtime.milliseconds() < 2000);
-        leftDrive.setPower(0);
-        rightDrive.setPower(0);
+        frontDrive.setPower(0);
+        backDrive.setPower(0);
 
         telemetry.update();
     }

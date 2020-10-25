@@ -53,8 +53,8 @@ import com.qualcomm.robotcore.util.Range;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Auto Move for JimBA2", group="Autonomous")
-public class AutoMove extends LinearOpMode {
+@Autonomous(name="Auto Move Right for JimBA2", group="Autonomous")
+public class AutoMoveR extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
